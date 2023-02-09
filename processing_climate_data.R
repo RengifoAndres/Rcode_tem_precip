@@ -33,8 +33,12 @@ library(collapse)
 
 
 ###
+### El análisis se hizo en una carpeta llamada  raw_climate_data, que coniene, a su vez, dos carpetas: 
+### precip_2017
+### temp_2017
+## estas últimas dos vacías. 
 
-setwd("C:\\Users\\a.rengifoj\\OneDrive - Universidad de los Andes\\Research Proyects\\Climate shocks and Climate change information demand\\data\\raw_climate_data")
+setwd("..\\raw_climate_data")
 
 
 # Download the precipitation data data
@@ -154,8 +158,6 @@ for (k in 1:length(list)){
 }
 
 
-
-
 Panel_prep= as.data.frame(ldf3[[1]])
 Panel_prep= collap(Panel_prep, precip ~ NAME +ISO2+ISO3, FUN = list(fmean)) 
 Panel_prep$ano <-  c(rep(1900, nrow(Panel_prep)))
@@ -186,61 +188,6 @@ setwd("C:\\Users\\Andres Felipe\\Desktop\\Proyectos\\Datos Clim?ticos")
 
 write.xlsx(global_climate_data, "global_clim.xlsx", asTable = FALSE, overwrite = TRUE)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Read the precipitation data
-
-# Read the temperature data
-nc_temp <- nc_open("precip_2017.tar")
-temp_var <- ncvar_get(nc_temp, "tempanomaly")
-
-# Convert the temperature data to a RasterBrick object
-temp_raster <- brick(temp_var)
-
-# Download the precipitation data
-download.file("https://data.giss.nasa.gov/pub/gistemp/precip.mon.total.v501.nc.gz", "precip.mon.total.v501.nc.gz")
-unzip("precip.mon.total.v501.nc.gz")
-
-# Read the precipitation data
-nc_precip <- nc_open("precip.mon.total.v501.nc")
-precip_var <- ncvar_get(nc_precip, "precip")
-
-# Convert the precipitation data to a RasterBrick object
-precip_raster <- brick(precip_var)
-
-# Download the country shapefile
-download.file("https://biogeo.ucdavis.edu/data/gadm3.6/Rsp/gadm36_RSP_shp.zip", "gadm36_RSP_shp.zip")
-unzip("gadm36_RSP_shp.zip")
-
-# Read the country shapefile
-countries <- readOGR("gadm36_RSP_shp", "gadm36_RSP_1")
-
-# Extract the average temperature and precipitation values for each country for each time period
-temp_precip_df <- data.frame(country = countries@data$NAME_0, 
-                             year = 1900:2017, 
-                             temp = apply(temp_raster, 3, function(x) {
-                               cellStats(x, countries, fun = mean)
-                             }),
-                             precip = apply(precip_raster, 3, function(x) {
-                               cellStats(x, countries, fun = mean)
-                             }))
 
 
 
